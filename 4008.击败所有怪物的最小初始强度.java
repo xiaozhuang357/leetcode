@@ -7,8 +7,7 @@
 // @lc code=start
 class Solution {
     public long minInitialStrength(int[] monsters, int[][] boosts) {
-        int n = monsters.length;
-        long[] adds = new long[n + 1];
+        long[] adds = new long[monsters.length + 1];
         for (int[] b : boosts) {
             adds[b[0]] += b[2];
             adds[b[1] + 1] -= b[2];
@@ -16,16 +15,31 @@ class Solution {
         for (int i = 1; i < adds.length; i++) {
             adds[i] += adds[i - 1];
         }
-        for (int i = n - 1; i >= 0; i--) {
-            if (adds[i] < monsters[i]) {
-                long ans = -adds[i];
-                for (int j = i; j >= 0; j--) {
-                    ans += monsters[j];
-                }
-                return ans;
+        long left = 0;
+        long right = 0;
+        for (int i : monsters) {
+            right += i;
+        }
+        while (left < right) {
+            long mid = left + (right - left) / 2;
+            if (check(monsters, mid, adds)) {
+                right = mid;
+            } else {
+                left = mid + 1;
             }
         }
-        return 0;
+        return left;
+    }
+
+    static boolean check(int[] monsters, long initialStrength, long[] adds) {
+        for (int i = 0; i < monsters.length; i++) {
+            if (adds[i] + initialStrength >= monsters[i]) {
+                initialStrength = Math.max(0, initialStrength - monsters[i]);
+            } else {
+                return false;
+            }
+        }
+        return true;
     }
 }
 // @lc code=end
